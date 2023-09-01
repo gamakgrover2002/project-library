@@ -1,13 +1,14 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const cors = require("cors");
-const User = require("./models/user");
-const bodyParser = require("body-parser");
-const port = 3000;
+const express = require("express"); //importing express
+const mongoose = require("mongoose"); //importing mongoose
+const cors = require("cors"); //importing cors
+const User = require("./models/user"); //importing the database model
+const bodyParser = require("body-parser"); //importing body-parser
+const port = 3000; // assigning 3000 as port number
 
-const app = express();
-app.use(bodyParser.json());
-app.use(cors());
+const app = express(); //declaring app
+app.use(bodyParser.json()); //app using body-parser
+app.use(cors()); //app using cors
+// connecting mongo database
 mongoose
   .connect(
     "mongodb+srv://gamkagroverofficial:0CtmSxEmIWcDdVK2@cluster0.hhdhcsp.mongodb.net/",
@@ -19,6 +20,7 @@ mongoose
   .then(() => {
     console.log("db is connected");
   });
+// ???????
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -33,7 +35,7 @@ app.use(function (req, res, next) {
 
   next();
 });
-
+// register request
 app.post("/register", async (req, res) => {
   console.log("hello");
   const { firstname, lastname, username, password } = req.body;
@@ -57,11 +59,12 @@ app.post("/register", async (req, res) => {
   }
 });
 
+// display data from api
 app.get("/", async (req, res) => {
   const user = await User.find();
-  res.send(user);
+  res.json(user);
 });
-
+//connecting server
 app.listen(port, () => {
   console.log("server up");
 });
