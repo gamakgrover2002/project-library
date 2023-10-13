@@ -3,11 +3,17 @@ const mongoose = require("mongoose"); //importing mongoose
 const cors = require("cors"); //importing cors
 const User = require("./models/user"); //importing the database model
 const bodyParser = require("body-parser"); //importing body-parser
+const bcrypt = require("bcrypt");
 const port = 3000; // assigning 3000 as port number
-
 const app = express(); //declaring app
+
 app.use(bodyParser.json()); //app using body-parser
 app.use(cors()); //app using cors
+
+async function comparePassword(password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
+}
+
 // connecting mongo database
 mongoose
   .connect(
@@ -20,7 +26,7 @@ mongoose
   .then(() => {
     console.log("db is connected");
   });
-// ???????
+
 app.use(function (req, res, next) {
   res.setHeader("Access-Control-Allow-Origin", "*");
   res.setHeader(
@@ -35,6 +41,7 @@ app.use(function (req, res, next) {
 
   next();
 });
+
 // register request
 app.post("/register", async (req, res) => {
   console.log("hello");
@@ -64,6 +71,41 @@ app.get("/", async (req, res) => {
   const user = await User.find();
   res.json(user);
 });
+
+//login
+app.post("/login", async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password)
+    return res
+      .status(404)
+      .json({ status: "e1", error: "Invalid Credentials!" });
+
+  try {
+    const user = await User.findOne({
+      username,
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ status: "e2", error: "Invalid Credentials!" });
+    }
+
+    const isUser = await comparePassword(password, user.password);
+
+    if (!isUser) {
+      return res
+        .status(404)
+        .json({ status: "e3", error: "Invalid Credentials!" });
+    }
+
+    return res.status(201).json({ status: "ok", user: user });
+  } catch (err) {
+    console.log(err);
+  }
+});
+
 //connecting server
 app.listen(port, () => {
   console.log("server up");
