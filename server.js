@@ -8,7 +8,7 @@ const port = 3000; // assigning 3000 as port number
 const app = express(); //declaring app
 
 app.use(bodyParser.json()); //app using body-parser
-app.use(cors()); //app using cors
+app.use(cors());
 
 async function comparePassword(password, hashedPassword) {
   return await bcrypt.compare(password, hashedPassword);
@@ -94,10 +94,11 @@ app.post("/login", async (req, res) => {
 
     const isUser = await comparePassword(password, user.password);
 
-    if (!isUser) {
-      return res
-        .status(404)
-        .json({ status: "e3", error: "Invalid Credentials!" });
+    if (isUser) {
+      console.log(isUser);
+      console.log(password);
+      console.log(user.password);
+      return res.status(404).json({ status: "e3", error: "hi" });
     }
 
     return res.status(201).json({ status: "ok", user: user });
